@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 
 const Board = () => {
-    const initialGrid = Array(9).fill().map(() => Array(9).fill(''));
 
+    const initialGrid = Array(9).fill().map(() => Array(9).fill(''));
     const [selectedCell, setSelectedCell] = useState({ row: null, col: null });
-    const [grid, setGrid] = useState(initialGrid);
+    const [grid, setGrid] = useState(Array(9).fill().map(() => Array(9).fill('')));
     const [elapsedTime, setElapsedTime] = useState(0);
     const [isTimerRunning, setIsTimerRunning] = useState(false);
     const [intialGrid, setIntialGrid] = useState(initialGrid);
@@ -80,6 +80,59 @@ const Board = () => {
         setElapsedTime(0);
         setIsTimerRunning(true);
     };
+
+    const isSolved = (grid) => {
+        // Check rows
+        for (let row = 0; row < 9; row++) {
+          const numbersInRow = new Set();
+          for (let col = 0; col < 9; col++) {
+            const num = grid[row][col];
+            if (num === ' ' || numbersInRow.has(num)) {
+                console.log('in roows');
+              return false;
+            }
+            numbersInRow.add(num);
+          }
+        }
+      
+        // Check columns
+        for (let col = 0; col < 9; col++) {
+          const numbersInCol = new Set();
+          for (let row = 0; row < 9; row++) {
+            const num = grid[row][col];
+            if (num === '' || numbersInCol.has(num)) {
+              return false;
+            }
+            numbersInCol.add(num);
+          }
+        }
+      
+        // Check subgrids (3x3 squares)
+        for (let subgridRow = 0; subgridRow < 3; subgridRow++) {
+          for (let subgridCol = 0; subgridCol < 3; subgridCol++) {
+            const numbersInSubgrid = new Set();
+            for (let row = subgridRow * 3; row < subgridRow * 3 + 3; row++) {
+              for (let col = subgridCol * 3; col < subgridCol * 3 + 3; col++) {
+                const num = grid[row][col];
+                if (num === '' || numbersInSubgrid.has(num)) {
+                  return false;
+                }
+                numbersInSubgrid.add(num);
+              }
+            }
+          }
+        }
+      
+        // All checks passed, the grid is solved
+        return true;
+      };
+
+    const handleCheckSolved = () => {
+        if (isSolved(grid)) {
+          alert('Congratulations! You solved the Sudoku puzzle!');
+          
+        } 
+      };
 
     const handleCellClick = (row, col) => {
         setSelectedCell({ row, col });
@@ -157,6 +210,8 @@ const Board = () => {
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
+
+
     return (
         <div className="flex bg-gray-800 flex-col items-center h-screen space-y-4">
             <div className="text-4xl font-bold mt-4 text-white border-b-4 border-blue-500 pb-2">
@@ -198,6 +253,9 @@ const Board = () => {
                         ✘
                     </button>
                 </div>
+                <button onClick={handleCheckSolved} className="bg-blue-500 text-white w-full h-12 rounded mt-4">
+        Check Solved
+      </button>
                 <button
                     onClick={newGame}
                     className="bg-green-500 text-white w-full h-12 rounded mt-4"
